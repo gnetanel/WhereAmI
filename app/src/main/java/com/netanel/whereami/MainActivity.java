@@ -2,6 +2,7 @@ package com.netanel.whereami;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
@@ -9,10 +10,14 @@ import android.location.LocationManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.TextView;
 
-public class MainActivity extends AppCompatActivity implements LocationListener {
+import java.io.IOException;
+import java.util.List;
 
+public class MainActivity extends AppCompatActivity implements LocationListener {
+    private static final String TAG = MainActivity.class.getName().toString();
     TextView textView;
     LocationManager locationManager;
     Geocoder geocoder;
@@ -31,6 +36,16 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             onLocationChanged(location);
         } else {
             textView.setText("Could not detect last location from GPS");
+        }
+
+        try {
+            List<Address> addresses = geocoder.getFromLocation(
+                    location.getLatitude(), location.getLongitude(), 10);
+            for (Address address : addresses) {
+                textView.append("\n" + address.getAddressLine(0));
+            }
+        } catch (IOException e) {
+            Log.e(TAG, "Couldn't get Geocoder data", e);
         }
     }
 
